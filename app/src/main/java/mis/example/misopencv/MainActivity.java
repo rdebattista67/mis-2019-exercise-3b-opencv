@@ -4,12 +4,14 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import android.Manifest;
@@ -31,6 +33,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import static org.opencv.imgproc.Imgproc.warpAffine;
 
 public class MainActivity extends AppCompatActivity implements CvCameraViewListener2 {
     private static final String TAG = "OCVSample::Activity";
@@ -131,7 +135,12 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         Imgproc.Canny(gray, tmp, 80, 100);
         Imgproc.cvtColor(tmp, col, Imgproc.COLOR_GRAY2RGBA, 4);
 
-        return col;
+        //https://stackoverflow.com/a/12998670/6118088
+        Mat rot = Imgproc.getRotationMatrix2D(new Point(col.cols() / 2,col.rows() / 2),270,1.0);
+        Mat dst = new Mat();
+        Imgproc.warpAffine(col, dst, rot, new Size(rot.cols(), rot.rows()));
+
+        return dst;
     }
 
 
