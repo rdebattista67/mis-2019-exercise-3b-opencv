@@ -4,7 +4,6 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
@@ -17,18 +16,15 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceView;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,16 +32,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import static org.opencv.imgproc.Imgproc.warpAffine;
-
 public class MainActivity extends AppCompatActivity implements CvCameraViewListener2 {
     private static final String TAG = "OCVSample::Activity";
 
-    private CameraBridgeViewBase    mOpenCvCameraView;
-    private boolean                 mIsJavaCamera = true;
-    private MenuItem                mItemSwitchCamera = null;
-    private CascadeClassifier       face_cascade;
-
+    private CameraBridgeViewBase mOpenCvCameraView;
+    private CascadeClassifier face_cascade;
+    
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
@@ -119,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
     }
 
     public void onCameraViewStarted(int width, int height) {
+
     }
 
     public void onCameraViewStopped() {
