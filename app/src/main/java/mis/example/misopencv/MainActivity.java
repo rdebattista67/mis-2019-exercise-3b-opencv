@@ -22,7 +22,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.SurfaceView;
 import android.view.WindowManager;
 
@@ -34,10 +33,9 @@ import java.io.OutputStream;
 
 public class MainActivity extends AppCompatActivity implements CvCameraViewListener2 {
     private static final String TAG = "OCVSample::Activity";
-
     private CameraBridgeViewBase mOpenCvCameraView;
     private CascadeClassifier face_cascade;
-    
+
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
@@ -47,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
                     Log.i(TAG, "OpenCV loaded successfully");
                     mOpenCvCameraView.enableView();
 
+                    //Load face recognition data
                     face_cascade  = new CascadeClassifier(initAssetFile("haarcascade_frontalface_default.xml"));
 
                 } break;
@@ -119,28 +118,36 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
 
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 
-        Mat col  = inputFrame.rgba();
+        //Load frame
+        Mat colorFrame  = inputFrame.rgba();
 
+        //Rotate frame, so it has the right angle
         //https://stackoverflow.com/a/12998670/6118088
-        Mat rot = Imgproc.getRotationMatrix2D(new Point(col.cols() * 0.5,col.rows() * 0.5),270,1.0);
-        Mat dst = new Mat();
-        Imgproc.warpAffine(col, dst, rot, new Size(col.cols(), col.rows()));
+        Mat tmpRotationMatrix = Imgproc.getRotationMatrix2D(new Point(colorFrame.cols() * 0.5, colorFrame.rows() * 0.5), 270, 1.0);
+        Mat rotatedColorFrame = new Mat();
+        Imgproc.warpAffine(colorFrame, rotatedColorFrame, tmpRotationMatrix, new Size(colorFrame.cols(), colorFrame.rows()));
 
+        //Detect faces
         //https://docs.opencv.org/3.4.1/d7/d8b/tutorial_py_face_detection.html
-        MatOfRect faceObj = new MatOfRect();
+        MatOfRect faceObjects = new MatOfRect();
         //https://answers.opencv.org/question/98171/flags-parameter-in-the-detectmultiscale-function/
-        face_cascade.detectMultiScale(dst, faceObj, 1.05, 5, 0, new Size(50, 50), new Size(200, 200));
+        face_cascade.detectMultiScale(rotatedColorFrame, faceObjects, 1.05, 5, 0, new Size(50, 50), new Size(200, 200));
 
-        for(Rect faceRect : faceObj.toArray()){
-           //https://www.programcreek.com/java-api-examples/?class=org.opencv.imgproc.Imgproc&method=circle
-            //https://docs.opencv.org/2.4/doc/tutorials/core/basic_geometric_drawing/basic_geometric_drawing.html
+        //Iterate through faces
+        for(Rect faceRect : faceObjects.toArray()){
+
+            //Compute clown nose spot and clown nose radius
             double xCenter = faceRect.x + faceRect.width * 0.5;
-            double yCenter = faceRect.y + faceRect.height * 0.55;
-            int radius = (int) Math.round(faceRect.height * 0.1);
-            Imgproc.circle(dst, new Point(xCenter, yCenter), radius, new Scalar(255, 0, 0), -1);
+            double yCenter = faceRect.y + faceRect.height * 0.55; //Nose isn't in dead center but slightly below
+            int radius = (int) Math.round(faceRect.height * 0.1); //Radius should be about 10% of face width for a nice effect
+
+            //Draw clown nose onto frame
+            //https://www.programcreek.com/java-api-examples/?class=org.opencv.imgproc.Imgproc&method=circle
+            //https://docs.opencv.org/2.4/doc/tutorials/core/basic_geometric_drawing/basic_geometric_drawing.html
+            Imgproc.circle(rotatedColorFrame, new Point(xCenter, yCenter), radius, new Scalar(255, 0, 0), -1);
         }
 
-        return dst;
+        return rotatedColorFrame;
     }
 
 
