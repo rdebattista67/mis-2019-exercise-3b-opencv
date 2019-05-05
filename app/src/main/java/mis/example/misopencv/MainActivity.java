@@ -8,11 +8,13 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
+import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.CascadeClassifier;
 
 import android.Manifest;
 import android.app.Activity;
@@ -42,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
     private CameraBridgeViewBase    mOpenCvCameraView;
     private boolean                 mIsJavaCamera = true;
     private MenuItem                mItemSwitchCamera = null;
+    private CascadeClassifier       face_cascade;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -51,6 +54,9 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
                 {
                     Log.i(TAG, "OpenCV loaded successfully");
                     mOpenCvCameraView.enableView();
+
+                    face_cascade  = new CascadeClassifier(initAssetFile("haarcascade_frontalface_default.xml"));
+
                 } break;
                 default:
                 {
@@ -120,25 +126,26 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
 
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 
-        //return inputFrame.rgba();
-        /*
         Mat col  = inputFrame.rgba();
-        Rect foo = new Rect(new Point(100,100), new Point(200,200));
-        Imgproc.rectangle(col, foo.tl(), foo.br(), new Scalar(0, 0, 255), 3);
-        return col;
-        */
-
-        Mat gray = inputFrame.gray();
-        Mat col  = inputFrame.rgba();
-
-        Mat tmp = gray.clone();
-        Imgproc.Canny(gray, tmp, 80, 100);
-        Imgproc.cvtColor(tmp, col, Imgproc.COLOR_GRAY2RGBA, 4);
 
         //https://stackoverflow.com/a/12998670/6118088
-        Mat rot = Imgproc.getRotationMatrix2D(new Point(col.cols() / 2,col.rows() / 2),270,1.0);
+        Mat rot = Imgproc.getRotationMatrix2D(new Point(col.cols() * 0.5,col.rows() * 0.5),270,1.0);
         Mat dst = new Mat();
         Imgproc.warpAffine(col, dst, rot, new Size(col.cols(), col.rows()));
+
+        //https://docs.opencv.org/3.4.1/d7/d8b/tutorial_py_face_detection.html
+        MatOfRect faceObj = new MatOfRect();
+        //https://answers.opencv.org/question/98171/flags-parameter-in-the-detectmultiscale-function/
+        face_cascade.detectMultiScale(dst, faceObj, 1.05, 5, 0, new Size(50, 50), new Size(200, 200));
+
+        for(Rect faceRect : faceObj.toArray()){
+           //https://www.programcreek.com/java-api-examples/?class=org.opencv.imgproc.Imgproc&method=circle
+            //https://docs.opencv.org/2.4/doc/tutorials/core/basic_geometric_drawing/basic_geometric_drawing.html
+            double xCenter = faceRect.x + faceRect.width * 0.5;
+            double yCenter = faceRect.y + faceRect.height * 0.55;
+            int radius = (int) Math.round(faceRect.height * 0.1);
+            Imgproc.circle(dst, new Point(xCenter, yCenter), radius, new Scalar(255, 0, 0), -1);
+        }
 
         return dst;
     }
