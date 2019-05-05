@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
             //Compute clown nose spot and clown nose radius
             double xCenter = faceRect.x + faceRect.width * 0.5;
             double yCenter = faceRect.y + faceRect.height * 0.55; //Nose isn't in dead center but slightly below
-            int radius = (int) Math.round(faceRect.height * 0.1); //Radius should be about 10% of face width for a nice effect
+            int radius = (int) Math.round(faceRect.height * 0.1); //Radius should be about 10% of face height for a nice effect
 
             //Draw clown nose onto frame
             //https://www.programcreek.com/java-api-examples/?class=org.opencv.imgproc.Imgproc&method=circle
