@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
     private CameraBridgeViewBase    mOpenCvCameraView;
     private boolean                 mIsJavaCamera = true;
     private MenuItem                mItemSwitchCamera = null;
+    private Mat                     mRgb
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -109,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
     }
 
     public void onCameraViewStarted(int width, int height) {
+
     }
 
     public void onCameraViewStopped() {
