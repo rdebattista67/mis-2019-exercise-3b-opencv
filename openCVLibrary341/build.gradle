@@ -1,5 +1,9 @@
 apply plugin: 'com.android.library'
 
+//Tutorial on how to build OpenCV from cource
+//https://android.jlelse.eu/a-beginners-guide-to-setting-up-opencv-android-library-on-android-studio-19794e220f3c
+
+
 android {
     compileSdkVersion 26
     buildToolsVersion "28.0.3"
