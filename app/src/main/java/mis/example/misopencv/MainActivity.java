@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         //https://stackoverflow.com/a/12998670/6118088
         Mat rot = Imgproc.getRotationMatrix2D(new Point(col.cols() / 2,col.rows() / 2),270,1.0);
         Mat dst = new Mat();
-        Imgproc.warpAffine(col, dst, rot, new Size(rot.cols(), rot.rows()));
+        Imgproc.warpAffine(col, dst, rot, new Size(col.cols(), col.rows()));
 
         return dst;
     }
